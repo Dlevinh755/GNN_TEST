@@ -95,27 +95,32 @@ class Net(torch.nn.Module):
             self.v_feat = v_feat.clone().detach().float().cuda()
         else:
             self.v_feat = torch.from_numpy(v_feat).float().cuda()
-        self.v_gcn = GCN(self.edge_index, batch_size, num_user, num_item, self.v_feat.size(1), dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id, dim_latent=256)
-
+        
         if isinstance(a_feat, torch.Tensor):
             self.a_feat = a_feat.clone().detach().float().cuda()
         else:
             self.a_feat = torch.from_numpy(a_feat).float().cuda()
-        self.a_gcn = GCN(self.edge_index, batch_size, num_user, num_item, self.a_feat.size(1), dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id)
-
+        
         if isinstance(t_feat, torch.Tensor):
             self.t_feat = t_feat.clone().detach().float().cuda()
         else:
             self.t_feat = torch.from_numpy(t_feat).float().cuda()
-        self.t_gcn = GCN(self.edge_index, batch_size, num_user, num_item, self.t_feat.size(1), dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id)
+        
+        # Fix: Use actual number of items from features instead of passed num_item
+        actual_num_item = self.v_feat.size(0)
+        
+        self.v_gcn = GCN(self.edge_index, batch_size, num_user, actual_num_item, self.v_feat.size(1), dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id, dim_latent=256)
+        self.a_gcn = GCN(self.edge_index, batch_size, num_user, actual_num_item, self.a_feat.size(1), dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id)
+        self.t_gcn = GCN(self.edge_index, batch_size, num_user, actual_num_item, self.t_feat.size(1), dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id)
 
         # self.words_tensor = torch.tensor(words_tensor, dtype=torch.long).cuda()
         # self.word_embedding = nn.Embedding(torch.max(self.words_tensor[1])+1, 128)
         # nn.init.xavier_normal_(self.word_embedding.weight) 
         # self.t_gcn = GCN(self.edge_index, batch_size, num_user, num_item, 128, dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id)
 
-        self.id_embedding = nn.init.xavier_normal_(torch.rand((num_user+num_item, dim_x), requires_grad=True)).cuda()
-        self.result = nn.init.xavier_normal_(torch.rand((num_user+num_item, dim_x))).cuda()
+        # Fix: Use actual_num_item for id_embedding size
+        self.id_embedding = nn.init.xavier_normal_(torch.rand((num_user+actual_num_item, dim_x), requires_grad=True)).cuda()
+        self.result = nn.init.xavier_normal_(torch.rand((num_user+actual_num_item, dim_x))).cuda()
 
 
     def forward(self):
