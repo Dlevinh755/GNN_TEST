@@ -14,15 +14,38 @@ def data_load(dataset, has_v=True, has_a=True, has_t=True):
     user_item_dict = np.load(dir_str+'/user_item_dict_sample.npy', allow_pickle=True).item()
 
     if dataset == 'movielens':
-        num_user = 55485
-        num_item = 5986
-        v_feat = np.load(dir_str+'/v_feat_sample.npy', allow_pickle=True) if has_v else None
-        a_feat = np.load(dir_str+'/a_feat_sample.npy', allow_pickle=True) if has_a else None
-        t_feat = np.load(dir_str+'/t_feat_sample.npy', allow_pickle=True) if has_t else None
-        # Fix: use .clone().detach() instead of torch.tensor for tensors
-        v_feat = torch.from_numpy(v_feat).float().cuda() if has_v else None
-        a_feat = torch.from_numpy(a_feat).float().cuda() if has_a else None
-        t_feat = torch.from_numpy(t_feat).float().cuda() if has_t else None
+        # Load features first to determine actual num_item
+        v_feat_np = np.load(dir_str+'/v_feat_sample.npy', allow_pickle=True) if has_v else None
+        a_feat_np = np.load(dir_str+'/a_feat_sample.npy', allow_pickle=True) if has_a else None
+        t_feat_np = np.load(dir_str+'/t_feat_sample.npy', allow_pickle=True) if has_t else None
+        
+        # Determine num_user from train_edge data
+        num_user = int(train_edge[:, 0].max()) + 1
+        
+        # Determine num_item from actual feature dimensions
+        if v_feat_np is not None:
+            num_item = v_feat_np.shape[0]
+        elif a_feat_np is not None:
+            num_item = a_feat_np.shape[0]
+        elif t_feat_np is not None:
+            num_item = t_feat_np.shape[0]
+        else:
+            num_item = 5986  # fallback
+        
+        # IMPORTANT: Offset item indices by num_user to create continuous index space
+        # Items in the data are in range [0, num_item), we need [num_user, num_user+num_item)
+        train_edge[:, 1] = train_edge[:, 1] + num_user
+        
+        # Also offset items in user_item_dict
+        user_item_dict_offset = {}
+        for user, items in user_item_dict.items():
+            user_item_dict_offset[user] = set([item + num_user for item in items])
+        user_item_dict = user_item_dict_offset
+        
+        # Convert to tensors
+        v_feat = torch.from_numpy(v_feat_np).float().cuda() if v_feat_np is not None else None
+        a_feat = torch.from_numpy(a_feat_np).float().cuda() if a_feat_np is not None else None
+        t_feat = torch.from_numpy(t_feat_np).float().cuda() if t_feat_np is not None else None
     elif dataset == 'Tiktok':
         num_user = 36656
         num_item = 76085

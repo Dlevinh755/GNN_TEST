@@ -79,7 +79,7 @@ class Net(torch.nn.Module):
         super(Net, self).__init__()
         self.batch_size = batch_size
         self.num_user = num_user
-        self.num_item = num_item
+        # num_item will be set later based on actual feature dimensions
         self.aggr_mode = aggr_mode
         self.concate = concate
         self.user_item_dict = user_item_dict
@@ -119,6 +119,7 @@ class Net(torch.nn.Module):
         # self.t_gcn = GCN(self.edge_index, batch_size, num_user, num_item, 128, dim_x, self.aggr_mode, self.concate, num_layer=num_layer, has_id=has_id)
 
         # Fix: Use actual_num_item for id_embedding size
+        self.num_item = actual_num_item  # Store the actual number of items
         self.id_embedding = nn.init.xavier_normal_(torch.rand((num_user+actual_num_item, dim_x), requires_grad=True)).cuda()
         self.result = nn.init.xavier_normal_(torch.rand((num_user+actual_num_item, dim_x))).cuda()
 
@@ -138,6 +139,17 @@ class Net(torch.nn.Module):
     def loss(self, user_tensor, item_tensor):
         user_tensor = user_tensor.view(-1)
         item_tensor = item_tensor.view(-1)
+        
+        # Validate indices to prevent index out of bounds errors
+        max_valid_index = self.num_user + self.v_feat.size(0) - 1
+        if user_tensor.max() > max_valid_index or item_tensor.max() > max_valid_index:
+            print(f"Index out of bounds detected!")
+            print(f"user_tensor max: {user_tensor.max()}, min: {user_tensor.min()}")
+            print(f"item_tensor max: {item_tensor.max()}, min: {item_tensor.min()}")
+            print(f"Valid range: 0 to {max_valid_index}")
+            print(f"num_user: {self.num_user}, num_items in features: {self.v_feat.size(0)}")
+            raise RuntimeError(f"Index out of bounds: max index is {max(user_tensor.max(), item_tensor.max())}, but valid range is 0 to {max_valid_index}")
+        
         out = self.forward()
         user_score = out[user_tensor]
         item_score = out[item_tensor]
