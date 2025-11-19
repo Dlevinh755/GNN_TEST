@@ -84,8 +84,8 @@ if __name__ == '__main__':
     train_dataset = TrainingDataset(num_user, num_item, user_item_dict, train_edge)
     train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True, num_workers=num_workers)
 
-    val_data = np.load('./Data/'+data_path+'/val_full.npy', allow_pickle=True)
-    test_data = np.load('./Data/'+data_path+'/test_full.npy', allow_pickle=True)
+    val_data = np.load('GNN_TEST/Movielens'+'/val_sample.npy', allow_pickle=True)
+    test_data = np.load('GNN_TEST/Movielens'+'/test_sample.npy', allow_pickle=True)
     print('Data has been loaded.')
     ##########################################################################################################################################
     model = Net(v_feat, a_feat, t_feat, None, train_edge, batch_size, num_user, num_item, 'mean', 'False', 2, True, user_item_dict, weight_decay, dim_E).cuda()

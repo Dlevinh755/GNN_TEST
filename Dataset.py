@@ -9,16 +9,16 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
 def data_load(dataset, has_v=True, has_a=True, has_t=True):
-    dir_str = './Data/' + dataset
-    train_edge = np.load(dir_str+'/train.npy', allow_pickle=True)
-    user_item_dict = np.load(dir_str+'/user_item_dict.npy', allow_pickle=True).item()
+    dir_str = 'GNN_TEST/Movielens'
+    train_edge = np.load(dir_str+'/train_sample.npy', allow_pickle=True)
+    user_item_dict = np.load(dir_str+'/user_item_dictz_sample.npy', allow_pickle=True).item()
 
     if dataset == 'movielens':
         num_user = 55485
         num_item = 5986
-        v_feat = np.load(dir_str+'/FeatureVideo_normal.npy', allow_pickle=True) if has_v else None
-        a_feat = np.load(dir_str+'/FeatureAudio_avg_normal.npy', allow_pickle=True) if has_a else None
-        t_feat = np.load(dir_str+'/FeatureText_stl_normal.npy', allow_pickle=True) if has_t else None
+        v_feat = np.load(dir_str+'/v_feat_sample.npy', allow_pickle=True) if has_v else None
+        a_feat = np.load(dir_str+'/a_feat_sample.npy', allow_pickle=True) if has_a else None
+        t_feat = np.load(dir_str+'/t_feat_sample.npy', allow_pickle=True) if has_t else None
         v_feat = torch.tensor(v_feat, dtype=torch.float).cuda() if has_v else None
         a_feat = torch.tensor(a_feat, dtype=torch.float).cuda() if has_a else None
         t_feat = torch.tensor(t_feat, dtype=torch.float).cuda() if has_t else None
