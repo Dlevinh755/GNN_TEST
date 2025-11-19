@@ -77,12 +77,14 @@ if __name__ == '__main__':
 
     num_user, num_item, train_edge, user_item_dict, v_feat, a_feat, t_feat = data_load(data_path)
 
-    v_feat = torch.tensor(v_feat, dtype=torch.float).cuda() if has_v else None
-    a_feat = torch.tensor(a_feat, dtype=torch.float).cuda() if has_a else None
-    t_feat = torch.tensor(t_feat, dtype=torch.float).cuda() if has_t else None
+    # Features are already converted to tensors in data_load, no need to convert again
+    v_feat = v_feat if has_v else None
+    a_feat = a_feat if has_a else None
+    t_feat = t_feat if has_t else None
 
     train_dataset = TrainingDataset(num_user, num_item, user_item_dict, train_edge)
-    train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True, num_workers=num_workers)
+    # Fix: reduce num_workers to avoid excessive worker creation
+    train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True, num_workers=min(num_workers, 4))
 
     val_data = np.load('GNN_TEST/Movielens'+'/val_sample.npy', allow_pickle=True)
     test_data = np.load('GNN_TEST/Movielens'+'/test_sample.npy', allow_pickle=True)
