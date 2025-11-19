@@ -19,21 +19,22 @@ def data_load(dataset, has_v=True, has_a=True, has_t=True):
         v_feat = np.load(dir_str+'/v_feat_sample.npy', allow_pickle=True) if has_v else None
         a_feat = np.load(dir_str+'/a_feat_sample.npy', allow_pickle=True) if has_a else None
         t_feat = np.load(dir_str+'/t_feat_sample.npy', allow_pickle=True) if has_t else None
-        v_feat = torch.tensor(v_feat, dtype=torch.float).cuda() if has_v else None
-        a_feat = torch.tensor(a_feat, dtype=torch.float).cuda() if has_a else None
-        t_feat = torch.tensor(t_feat, dtype=torch.float).cuda() if has_t else None
+        # Fix: use .clone().detach() instead of torch.tensor for tensors
+        v_feat = torch.from_numpy(v_feat).float().cuda() if has_v else None
+        a_feat = torch.from_numpy(a_feat).float().cuda() if has_a else None
+        t_feat = torch.from_numpy(t_feat).float().cuda() if has_t else None
     elif dataset == 'Tiktok':
         num_user = 36656
         num_item = 76085
         if has_v:
             v_feat = torch.load(dir_str+'/feat_v.pt')
-            v_feat = torch.tensor(v_feat, dtype=torch.float).cuda()
+            v_feat = v_feat.float().cuda() if not v_feat.is_cuda else v_feat.float()
         else:
             v_feat = None
 
         if has_a:
             a_feat = torch.load(dir_str+'/feat_a.pt')
-            a_feat = torch.tensor(a_feat, dtype=torch.float).cuda() 
+            a_feat = a_feat.float().cuda() if not a_feat.is_cuda else a_feat.float()
         else:
             a_feat = None
         
@@ -42,7 +43,7 @@ def data_load(dataset, has_v=True, has_a=True, has_t=True):
         num_user = 7010
         num_item = 86483
         v_feat = torch.load(dir_str+'/feat_v.pt')
-        v_feat = torch.tensor(v_feat, dtype=torch.float).cuda()
+        v_feat = v_feat.float().cuda() if not v_feat.is_cuda else v_feat.float()
         a_feat = t_feat = None
 
     return num_user, num_item, train_edge, user_item_dict, v_feat, a_feat, t_feat
@@ -53,7 +54,8 @@ class TrainingDataset(Dataset):
         self.num_user = num_user
         self.num_item = num_item
         self.user_item_dict = user_item_dict
-        self.all_set = set(range(num_user, num_user+num_item))
+        # Fix: convert set to list for random.sample
+        self.all_set = list(range(num_user, num_user+num_item))
 
     def __len__(self):
         return len(self.edge_index)
