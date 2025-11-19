@@ -164,7 +164,7 @@ class Net(torch.nn.Module):
         item_tensor = self.result[self.num_user:]
 
         start_index = 0
-        end_index = self.num_user if step==None else step
+        end_index = self.num_user if step==None else min(step, self.num_user)
 
         all_index_of_rank_list = torch.LongTensor([])
         while end_index <= self.num_user and start_index < end_index:
@@ -219,7 +219,7 @@ class Net(torch.nn.Module):
         item_tensor = self.result[self.num_user:]
 
         start_index = 0
-        end_index = self.num_user if step==None else step
+        end_index = self.num_user if step==None else min(step, self.num_user)
 
         all_index_of_rank_list = torch.LongTensor([])
         while end_index <= self.num_user and start_index < end_index:
