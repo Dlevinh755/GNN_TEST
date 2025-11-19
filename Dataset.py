@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 def data_load(dataset, has_v=True, has_a=True, has_t=True):
     dir_str = 'GNN_TEST/Movielens'
     train_edge = np.load(dir_str+'/train_sample.npy', allow_pickle=True)
-    user_item_dict = np.load(dir_str+'/user_item_dictz_sample.npy', allow_pickle=True).item()
+    user_item_dict = np.load(dir_str+'/user_item_dict_sample.npy', allow_pickle=True).item()
 
     if dataset == 'movielens':
         num_user = 55485
