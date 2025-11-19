@@ -102,7 +102,7 @@ if __name__ == '__main__':
     for epoch in range(num_epoch):
         loss = train(epoch, len(train_dataset), train_dataloader, model, optimizer, batch_size, writer)
         if torch.isnan(loss):
-            with open('./Data/'+data_path+'/result_{0}.txt'.format(save_file), 'a') as save_file:
+            with open('GNN_TEST/Movielens'+'/result_{0}.txt'.format(save_file), 'a') as save_file:
                     save_file.write('lr: {0} \t Weight_decay:{1} is Nan\r\n'.format(learning_rate, weight_decay))
             break
         torch.cuda.empty_cache()
@@ -118,7 +118,7 @@ if __name__ == '__main__':
             num_decreases = 0
         else:
             if num_decreases > 20:
-                with open('GNN_TEST/Movielens'+f'/result_{0}.txt'.format(save_file), 'a') as save_file:
+                with open('GNN_TEST/Movielens'+'/result_{0}.txt'.format(save_file), 'a') as save_file:
                     save_file.write('lr: {0} \t Weight_decay:{1} =====> Precision:{2} \t Recall:{3} \t NDCG:{4}\r\n'.
                                     format(learning_rate, weight_decay, max_precision, max_recall, max_NDCG))
                 break
