@@ -38,6 +38,12 @@ if __name__ == '__main__':
     parser.add_argument('--has_a', default='True', help='Has Acoustic Features.')
     parser.add_argument('--has_t', default='True', help='Has Textual Features.')
 
+    parser.add_argument('--model_name', type=str, default='MMGCN', help='Model name.')
+    parser.add_argument('--dim_latent', type=int, default=64, help='Latent dimension size.')
+    parser.add_argument('--num_layer', type=int, default=2, help='Number of GNN layers.')
+    parser.add_argument('--concat', type=str, default='False', help='Whether to concatenate features.')
+    parser.add_argument('--num_routing', type=int, default=3, help='Number of routing iterations.')
+
     args = parser.parse_args()
     
     seed = args.seed
