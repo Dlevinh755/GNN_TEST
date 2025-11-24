@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.autograd import no_grad
 import numpy as np
 
-def full_vt(epoch, model, data,topK = 10, prefix, writer=None):   
+def full_vt(epoch, model, data, prefix, topK=10, writer=None):   
     print(prefix+' start...')
     model.eval()
 
