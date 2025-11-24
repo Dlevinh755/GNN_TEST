@@ -107,8 +107,8 @@ if __name__ == '__main__':
             break
         torch.cuda.empty_cache()
 
-        val_precision, val_recall, val_ndcg = full_vt(epoch, model, val_data, 'Val', writer)
-        test_precision, test_recall, test_ndcg = full_vt(epoch, model, test_data, 'Test', writer)
+        val_precision, val_recall, val_ndcg = full_vt(epoch, model, val_data, topK, 'Val', writer)
+        test_precision, test_recall, test_ndcg = full_vt(epoch, model, test_data, topK, 'Test', writer)
 
         if val_recall > val_max_recall:
             val_max_recall = val_recall

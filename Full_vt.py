@@ -4,12 +4,12 @@ import torch.nn as nn
 from torch.autograd import no_grad
 import numpy as np
 
-def full_vt(epoch, model, data, prefix, writer=None):   
+def full_vt(epoch, model, data,topK = 10, prefix, writer=None):   
     print(prefix+' start...')
     model.eval()
 
     with no_grad():
-        precision, recall, ndcg_score = model.full_accuracy(data)
+        precision, recall, ndcg_score = model.full_accuracy(data, topK=topK)
         print('---------------------------------{0}-th Precition:{1:.4f} Recall:{2:.4f} NDCG:{3:.4f}---------------------------------'.format(
             epoch, precision, recall, ndcg_score))
         if writer is not None:
